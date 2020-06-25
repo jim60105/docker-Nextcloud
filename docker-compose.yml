@@ -4,6 +4,8 @@ services:
   db:
     image: mariadb
     command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    labels:
+      - "nextcloud"
     restart: always
     volumes:
       - db:/var/lib/mysql
@@ -12,10 +14,14 @@ services:
 
   redis:
     image: redis:alpine
+    labels:
+     - "nextcloud"
     restart: always
 
   app:
     image: nextcloud:apache
+    labels:
+      - "nextcloud"
     restart: always
     volumes:
       - nextcloud:/var/www/html
@@ -33,6 +39,8 @@ services:
 
   cron:
     image: nextcloud:apache
+    labels:
+      - "nextcloud"
     restart: always
     volumes:
       - nextcloud:/var/www/html
@@ -48,7 +56,8 @@ services:
       - 80:80
       - 443:443
     labels:
-      com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
+      - "nextcloud"
+      - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy=true"
     volumes:
       - certs:/etc/nginx/certs:ro
       - vhost.d:/etc/nginx/vhost.d
@@ -59,6 +68,8 @@ services:
 
   letsencrypt-companion:
     image: jrcs/letsencrypt-nginx-proxy-companion
+    labels:
+    - "nextcloud"
     restart: always
     volumes:
       - certs:/etc/nginx/certs
@@ -70,12 +81,33 @@ services:
     depends_on:
       - proxy
 
+  ofelia:
+    image: mcuadros/ofelia
+    command: daemon --docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./backup:/backup
+      - ./backup.sh:/backup.sh
+    labels:
+        #ofelia.job-local.backupjob.schedule: "0 7 * * 3"
+      ofelia.job-local.backupjob.schedule: "*/5 * * * *"
+      ofelia.job-local.backupjob.command: "/bin/bash /backup.sh"
 volumes:
   db:
+    labels:
+      - "nextcloud"
   nextcloud:
+    labels:
+      - "nextcloud"
   certs:
+    labels:
+      - "nextcloud"
   vhost.d:
+    labels:
+      - "nextcloud"
   html:
+    labels:
+      - "nextcloud"
 
 networks:
   proxy-tier:
