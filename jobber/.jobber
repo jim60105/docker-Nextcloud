@@ -1,6 +1,0 @@
-version: 1.4
-
-jobs:
-  Backup:
-    cmd: /backup.sh
-    time: 0 0 7 * * 3

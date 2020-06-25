@@ -1,4 +1,3 @@
-FROM jobber
-MAINTAINER jim60105
+FROM blacklabelops/jobber:docker 
 
-COPY --chown=jobberuser:jobberuser .jobber /home/jobberuser/.jobber
+RUN apk add sshpass rsync openssh-client
