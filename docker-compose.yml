@@ -81,17 +81,12 @@ services:
     depends_on:
       - proxy
 
-  ofelia:
-    image: mcuadros/ofelia
-    command: daemon --docker
+  jobber:
+    build: ./jobber
+    restart: always
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./backup:/backup
-      - ./backup.sh:/backup.sh
-    labels:
-        #ofelia.job-local.backupjob.schedule: "0 7 * * 3"
-      ofelia.job-local.backupjob.schedule: "*/5 * * * *"
-      ofelia.job-local.backupjob.command: "/bin/bash /backup.sh"
+      - ./backup.sh:/backup.sh:ro
 volumes:
   db:
     labels:
