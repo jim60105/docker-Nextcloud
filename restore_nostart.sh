@@ -12,7 +12,3 @@ do
     echo "Restore ${i}..."
     su - root -c "docker run -v ${i}:/volume -v $PWD:/backup --rm loomchild/volume-backup restore ${i}.tar.bz2 -v"
 done
-
-echo "Starting Container..."
-su - root -c "docker start \$(docker ps -a -f 'label=nextcloud' -q)"
-

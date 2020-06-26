@@ -3,9 +3,9 @@ version: '3'
 services:
   db:
     image: mariadb
-    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
     labels:
       - "nextcloud"
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
     restart: always
     volumes:
       - db:/var/lib/mysql
@@ -30,6 +30,7 @@ services:
       - REDIS_HOST=redis
     env_file:
       - db.env
+      - app.env
     depends_on:
       - db
       - redis
@@ -51,16 +52,16 @@ services:
 
   proxy:
     build: ./proxy
+    labels:
+      - "nextcloud"
+      - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy=true"
     restart: always
     ports:
       - 80:80
       - 443:443
-    labels:
-      - "nextcloud"
-      - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy=true"
     volumes:
-      - certs:/etc/nginx/certs:ro
-      - vhost.d:/etc/nginx/vhost.d
+      - certs:/etc/nginx/certs
+      - vhost:/etc/nginx/vhost.d
       - html:/usr/share/nginx/html
       - /var/run/docker.sock:/tmp/docker.sock:ro
     networks:
@@ -73,16 +74,17 @@ services:
     restart: always
     volumes:
       - certs:/etc/nginx/certs
-      - vhost.d:/etc/nginx/vhost.d
+      - vhost:/etc/nginx/vhost.d
       - html:/usr/share/nginx/html
       - /var/run/docker.sock:/var/run/docker.sock:ro
-    networks:
-      - proxy-tier
+    environment:
+      - LETSENCRYPT_TEST=true #Remove before produce
     depends_on:
       - proxy
+    networks:
+      - proxy-tier
 
   jobber:
-    #image: blacklabelops/jobber:docker
     build: ./jobber
     restart: always
     volumes:
@@ -108,7 +110,7 @@ volumes:
   certs:
     labels:
       - "nextcloud"
-  vhost.d:
+  vhost:
     labels:
       - "nextcloud"
   html:
