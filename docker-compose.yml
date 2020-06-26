@@ -61,6 +61,7 @@ services:
       - 443:443
     volumes:
       - certs:/etc/nginx/certs
+      - dhparam:/etc/nginx/dhparam
       - vhost:/etc/nginx/vhost.d
       - html:/usr/share/nginx/html
       - /var/run/docker.sock:/tmp/docker.sock:ro
@@ -105,6 +106,9 @@ volumes:
     labels:
       - "nextcloud"
   nextcloud:
+    labels:
+      - "nextcloud"
+  dhparam:
     labels:
       - "nextcloud"
   certs:
