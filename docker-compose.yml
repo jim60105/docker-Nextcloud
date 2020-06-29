@@ -15,7 +15,7 @@ services:
   redis:
     image: redis:alpine
     labels:
-     - "nextcloud"
+      - "nextcloud"
     restart: always
 
   app:
@@ -36,7 +36,6 @@ services:
       - redis
     networks:
       - proxy-tier
-      - default
 
   cron:
     image: nextcloud:apache
@@ -53,17 +52,18 @@ services:
   proxy:
     build: ./proxy
     labels:
+      - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy"
       - "nextcloud"
-      - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy=true"
     restart: always
     ports:
       - 80:80
       - 443:443
     volumes:
-      - certs:/etc/nginx/certs
-      - dhparam:/etc/nginx/dhparam
+      - conf:/etc/nginx/conf.d
       - vhost:/etc/nginx/vhost.d
       - html:/usr/share/nginx/html
+      - dhparam:/etc/nginx/dhparam
+      - certs:/etc/nginx/certs:ro
       - /var/run/docker.sock:/tmp/docker.sock:ro
     networks:
       - proxy-tier
@@ -71,17 +71,18 @@ services:
   letsencrypt-companion:
     image: jrcs/letsencrypt-nginx-proxy-companion
     labels:
-    - "nextcloud"
+      - "nextcloud"
     restart: always
     volumes:
-      - certs:/etc/nginx/certs
+      - conf:/etc/nginx/conf.d
       - vhost:/etc/nginx/vhost.d
       - html:/usr/share/nginx/html
+      - dhparam:/etc/nginx/dhparam
+      - certs:/etc/nginx/certs
       - /var/run/docker.sock:/var/run/docker.sock:ro
-    environment:
-      - LETSENCRYPT_TEST=true #Remove before produce
     depends_on:
       - proxy
+      - app
     networks:
       - proxy-tier
 
@@ -106,6 +107,9 @@ volumes:
     labels:
       - "nextcloud"
   nextcloud:
+    labels:
+      - "nextcloud"
+  conf:
     labels:
       - "nextcloud"
   dhparam:
