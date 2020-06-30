@@ -1,16 +1,16 @@
 //Fill these
 const NextCloudUserName = "";
-const TargetHost = "cloud.domain.com";
 const SourceHost = "img.domain.com";
+const TargetHost = "nextcloud.domain.com";
 
 const picExt = [
+  "ico",  //This is needed for favicon
   "jpg",
   "png",
   "gif",
   "jpeg",
   "bmp",
   "tiff",
-  "ico",  //This is needed for favicon
   "mp4",
   "svg"
 ]
@@ -18,16 +18,18 @@ const picExt = [
 function isPic(pathname) {
   let p = pathname.split(".");
   let ext = p[p.length - 1];
-  return (picExt.indexOf(ext.toLowerCase()) >= 0) ? true : false;
+  return (picExt.indexOf(ext.toLowerCase()) >= 0);
 }
 
 //Entrypoint
 addEventListener('fetch', async event => {
-  event.respondWith(function (event) {
+  event.respondWith(handleRequest(event))
+});
+function handleRequest(event){
     let url = new URL(event.request.url);
 
     //Bypass SSL Challenge and other .well-known
-    if (url.pathname.indexOf(".well-known") >= 0) {
+    if (url.pathname.indexOf("well-known") >= 0) {
       return fetch(event.request);
     }
 
@@ -52,5 +54,4 @@ addEventListener('fetch', async event => {
     }
 
     return new Response('Not found', { status: 404 });
-  });
-});
+}

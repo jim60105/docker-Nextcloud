@@ -1,4 +1,4 @@
-﻿# Nextcloud+Docker+定時備份
+# Nextcloud+Docker+定時備份
 
 ## 架構
 ┌ nginx做Reverse Proxy\
@@ -6,8 +6,8 @@
 ├ MariaDB\
 ├ Nextcloud\
 └ Jobber(Cron)\
-  ├ 定時Backup Docker volume\
-  └ Backup完送至rsync server\
+　├ 定時Backup Docker volume\
+　└ Backup完送至rsync server
 
 ## 說明
 * 備份檔會儲存在主機的 `/backup`
@@ -69,5 +69,13 @@ img網域的縮址如下:\
 1. 安裝應用程式: Sharing Path\
 ※**注意**: Sharing Path會開啟「以路徑直鏈訪問公開檔案」功能，雖然方便，但會導致路徑可猜的資安問題\
 故**建議此Nextcloud只存放低敏感度資料**
-1. 開一個Public資料夾，此資料夾開啟外部唯讀分享，做為分享的根目錄
+1. 右上角「設定→個人-分享→Sharing Path」，勾上Enable sharing path
+1. 「設定→管理-分享」，勾選以下項目
+	* 允許 apps 使用分享 API
+	* 允許使用者透過連結分享
+		* 允許公開上傳
+	* 允許使用者名稱自動補齊在分享對話框
+	* 允許這台伺服器上的使用者發送分享給其他伺服器
+	* Search global and public address book for users 
+1. 在Nextcloud根目錄新增Public資料夾，此資料夾開啟外部唯讀分享，做為分享的根目錄
 1. Public資料夾下放做為img網域的favicon.ico，即`Public/favicon.ico`
