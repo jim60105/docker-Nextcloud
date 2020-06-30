@@ -36,6 +36,7 @@ services:
       - redis
     networks:
       - proxy-tier
+      - default
 
   cron:
     image: nextcloud:apache
