@@ -93,13 +93,13 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /backup:/backup
-      - ${PWD}/backup.sh:/backup.sh
+      - ./shellScript/backup.sh:/backup.sh:ro
       - ~/ssh.pas:/root/ssh.pas:ro
     environment:
       - JOBS_NOTIFY_CMD=/bin/bash
       - JOB_NAME1=Backup
       - JOB_COMMAND1=/bin/bash /backup.sh
-      - JOB_TIME1=0 0 8 * * 3 #Wed. 8 a.m.
+      - JOB_TIME1=0 0 8 * * 3 #Exec per Week at Wed. 8 a.m.
       - JOB_NOTIFY_ERR1=false
       - JOB_NOTIFY_FAIL1=true
 

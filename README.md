@@ -1,17 +1,73 @@
 ﻿# Nextcloud+Docker+定時備份
 
-## 描述
-* nginx做Reverse Proxy
-  * SSL證書申請、Renew
-* Nextcloud
-* MariaDB
-* Jobber(Cron)
-  * 定時Backup Docker volume
-  * Backup完送至rsync server
+## 架構
+┌ nginx做Reverse Proxy\
+│ └ SSL證書申請、Renew\
+├ MariaDB\
+├ Nextcloud\
+└ Jobber(Cron)\
+  ├ 定時Backup Docker volume\
+  └ Backup完送至rsync server\
 
-## 設置指示
+## 說明
 * 備份檔會儲存在主機的 `/backup`
 * 請參考 `*.env_sample` 建立 `*.env`
 * rsync ssh passwd 明碼放在 `/root/ssh.pas`，chown root
+* Jobber會運行`shellScript/backup.sh`，請修改此檔案中(和其它*.sh)的rsync路徑設定
 * 正式發佈前移除 `app.env` 中的 `LETSENCRYPT_TEST=true`\
-(此設定為測試SSL證書。正式版有申請次數上限，務必在最後上線前再移除)
+此設定為測試SSL證書\
+正式版有申請次數上限，務必在測試正常、最後上線前再移除
+
+## img圖片縮址和DNS設定
+### Cloudflare設定
+這裡使用Cloudflare做DNS和Cache設定\
+Worker是img縮址的主要邏輯\
+SSL設定是為了讓Let's Encrypt能成功訪問\
+DNS Record有三條，一條A指向SERVER_IP，另倆CNAME指向A Record
+
+Cache設定於cloud和img倆網域上，是為了節省主機流量，Cloudflare能夠抓住近99%\
+請使用nextcloud網域做操作，以免Cache造成回應錯誤\
+分享時使用cloud網域和img網域\
+img網域的縮址如下:\
+`https://img.domain.com/OOXX` = \
+`https://nextcloud.domain.com/index.php/apps/sharingpath/<NEXTCLOUDUSERNAME>/Public/OOXX`
+
+* DNS
+	* A: `nextcloud.domain.com` → SERVER_IP (DNS Only)
+	* CNAME: `cloud.domain.com` → `nextcloud.domain.com` (Proxied)
+	* CNAME: `img.domain.com` → `nextcloud.domain.com` (Proxied)
+* SSL/TLS
+	* Always Use HTTPS: **Off**
+	* HTTP Strict Transport Security (HSTS): **Disabled**
+	* Automatic HTTPS Rewrites: (Can enable if needed)
+* Caching
+	* Caching Level: Standard
+* Worker
+	* 建一個Worker，內容為`Cloudflare/worker.js`
+	* Route `img.domain.com` 至此Worker
+* Page Rule
+	1. `*domain.com/.well-known/acme-challenge*`
+		* **Disable Everything**
+		* Cache Level: Bypass
+	1. `nextcloud.domain.com/index.php/apps/sharingpath/<NEXTCLOUDUSERNAME>/Public/*`
+		* Disable Security
+		* Browser Integrity Check: Off
+		* SSL: Full
+		* Browser Cache TTL: a year
+		* Cache Level: Cache Everything
+		* Edge Cache TTL: a month
+		* Automatic HTTPS Rewrites: On
+		* Disable Performance
+	1. `https://cloud.maki0419.com/*`
+		* SSL: Full
+		* Rocket Loader: Off
+		* Cache Level: Cache Everything
+		* Automatic HTTPS Rewrites: On
+		* Disable Apps
+
+### Nextcloud設定
+1. 安裝應用程式: Sharing Path\
+※**注意**: Sharing Path會開啟「以路徑直鏈訪問公開檔案」功能，雖然方便，但會導致路徑可猜的資安問題\
+故**建議此Nextcloud只存放低敏感度資料**
+1. 開一個Public資料夾，此資料夾開啟外部唯讀分享，做為分享的根目錄
+1. Public資料夾下放做為img網域的favicon.ico，即`Public/favicon.ico`
