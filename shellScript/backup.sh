@@ -12,7 +12,7 @@ V=$(su - root -c "docker volume ls -f 'label=nextcloud' -q")
 for i in ${V}
 do
     echo "Backup ${i}..."
-    su - root -c "docker run -v ${i}:/volume -v $PWD:/backup --rm loomchild/volume-backup backup ${i}.tar.bz2 -v"
+    su - root -c "docker run -v ${i}:/volume -v $PWD:/backup --rm loomchild/volume-backup backup -v -c gz ${i}"
 done
 
 echo "Starting Container..."
