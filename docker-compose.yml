@@ -1,10 +1,13 @@
-version: '3'
+version: '3.7'
+
+x-labels:
+  labels: &default-label
+    nextcloud:
 
 services:
   db:
     image: mariadb
-    labels:
-      - "nextcloud"
+    labels: *default-label
     command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
     restart: always
     volumes:
@@ -14,23 +17,27 @@ services:
 
   redis:
     image: redis:alpine
-    labels:
-      - "nextcloud"
+    labels: *default-label
     restart: always
 
   app:
     image: nextcloud:apache
-    labels:
-      - "nextcloud"
+    labels: *default-label
     restart: always
     volumes:
       - nextcloud:/var/www/html
-    environment:
-      - MYSQL_HOST=db
-      - REDIS_HOST=redis
     env_file:
+      - .env
       - db.env
-      - app.env
+    environment:
+      - REDIS_HOST=redis
+      - MYSQL_HOST=db
+      - MYSQL_USER=nextcloud
+      - MYSQL_DATABASE=nextcloud
+      # Comma-seperated
+      - VIRTUAL_HOST=${LETSENCRYPT_HOST}
+      # Space-seperated
+      - NEXTCLOUD_TRUSTED_DOMAINS=${LETSENCRYPT_HOST}
     depends_on:
       - db
       - redis
@@ -40,8 +47,7 @@ services:
 
   cron:
     image: nextcloud:apache
-    labels:
-      - "nextcloud"
+    labels: *default-label
     restart: always
     volumes:
       - nextcloud:/var/www/html
@@ -49,43 +55,6 @@ services:
     depends_on:
       - db
       - redis
-
-  proxy:
-    build: ./proxy
-    labels:
-      - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy"
-      - "nextcloud"
-    restart: always
-    ports:
-      - 80:80
-      - 443:443
-    volumes:
-      - conf:/etc/nginx/conf.d
-      - vhost:/etc/nginx/vhost.d
-      - html:/usr/share/nginx/html
-      - dhparam:/etc/nginx/dhparam
-      - certs:/etc/nginx/certs:ro
-      - /var/run/docker.sock:/tmp/docker.sock:ro
-    networks:
-      - proxy-tier
-
-  letsencrypt-companion:
-    image: jrcs/letsencrypt-nginx-proxy-companion
-    labels:
-      - "nextcloud"
-    restart: always
-    volumes:
-      - conf:/etc/nginx/conf.d
-      - vhost:/etc/nginx/vhost.d
-      - html:/usr/share/nginx/html
-      - dhparam:/etc/nginx/dhparam
-      - certs:/etc/nginx/certs
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    depends_on:
-      - proxy
-      - app
-    networks:
-      - proxy-tier
 
   jobber:
     build: ./jobber
@@ -96,7 +65,6 @@ services:
       - ./shellScript:/script:ro
       - ~/ssh.pas:/root/ssh.pas:ro
     environment:
-      - JOBS_NOTIFY_CMD=tee /backup/log.txt
       - JOB_NAME1=Backup
       - JOB_COMMAND1=/bin/bash /script/backup.sh && /bin/bash /script/upload.sh
       - JOB_TIME1=0 0 0 * * 3 #Exec per Week at UTC Wed. 0 a.m.
@@ -105,26 +73,11 @@ services:
 
 volumes:
   db:
-    labels:
-      - "nextcloud"
+    labels: *default-label
   nextcloud:
-    labels:
-      - "nextcloud"
-  conf:
-    labels:
-      - "nextcloud"
-  dhparam:
-    labels:
-      - "nextcloud"
-  certs:
-    labels:
-      - "nextcloud"
-  vhost:
-    labels:
-      - "nextcloud"
-  html:
-    labels:
-      - "nextcloud"
+    labels: *default-label
 
 networks:
   proxy-tier:
+    external: true
+    name: proxy-tier

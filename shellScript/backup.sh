@@ -1,4 +1,5 @@
-#!/usr/bin/env sh
+#!/bin/bash
+
 date +"%F %T"
 
 scriptFolder="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
@@ -10,7 +11,7 @@ rm -f *
 
 source ${scriptFolder}/stopContainer.sh
 
-V=$(su - root -c "docker volume ls -f 'label=nextcloud' -q")
+V=$(su - root -c "docker volume ls -f 'label=proxy' -q && docker volume ls -f 'label=nextcloud' -q")
 for i in ${V}
 do
     echo "Backup ${i}..."

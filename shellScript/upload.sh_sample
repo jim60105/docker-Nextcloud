@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/bash
 
 echo "Starting Transfer to backup server..."
 su - root -c "mkdir -p ~/.ssh"

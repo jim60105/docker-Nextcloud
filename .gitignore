@@ -1,2 +1,3 @@
 db.env
-app.env
+.env
+upload.sh

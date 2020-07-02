@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/bash
 date +"%F %T"
 
 scriptFolder="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
@@ -9,9 +9,9 @@ cd /backup
 
 source ${scriptFolder}/stopContainer.sh
 
-V=$(su - root -c "docker volume ls -f 'label=nextcloud' -q")
+V=$(su - root -c "docker volume ls -f 'label=proxy' -q && docker volume ls -f 'label=nextcloud' -q")
 for i in ${V}
 do
     echo "Restore ${i}..."
-    su - root -c "docker run -v ${i}:/volume -v $PWD:/backup --rm loomchild/volume-backup restore ${i}.tar.gz -v"
+    su - root -c "docker run -v ${i}:/volume -v $PWD:/backup --rm loomchild/volume-backup restore -v -c gz ${i}"
 done
