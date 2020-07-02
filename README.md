@@ -23,13 +23,14 @@ img網域的縮址如下:\
 `https://nextcloud.domain.com/index.php/apps/sharingpath/<NEXTCLOUDUSERNAME>/Public/OOXX`
 
 ### Cloudflare設定
-推薦使用Cloudflare做DNS和Cache設定\
-Cloudflare Worker是img縮址的主要邏輯\
-CDN的SSL設定如此是為了讓Let's Encrypt能成功訪問\
-DNS Record有三條，一條A指向SERVER_IP，另倆CNAME指向A Record
+我使用Cloudflare做DNS和Cache\
+Cloudflare Worker是img縮址的主要邏輯
 
-Cache只設定於cloud和img倆網域上，nextcloud網域direct用做日常操作，以免Cache造成回應錯誤，
-而分享時使用cloud網域和img網域，可以節省主機流量，Cloudflare能夠抓住近99%
+DNS Record有三條，一條A指向SERVER_IP，另倆CNAME指向A Record\
+nextcloud網域DNS Only用做日常操作，以免Cache造成回應錯誤\
+Cache只設定於cloud和img倆網域上，分享時使用這倆網域可以節省主機流量，Cloudflare能夠抓住近99%
+
+SSL相關設定如此是為了讓Let's Encrypt能成功訪問，請留意
 
 * DNS
 	* A: `nextcloud.domain.com` → SERVER_IP (DNS Only)
