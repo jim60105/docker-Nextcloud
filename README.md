@@ -1,9 +1,8 @@
 # Nextcloud+Docker+定時備份
 
 ## 架構
-┌ nginx做Reverse Proxy\
-│ └ SSL證書申請、Renew\
-├ MariaDB\
+nginx做Reverse Proxy ─ SSL證書申請、Renew\
+│ ┌ MariaDB資料庫\
 ├ Nextcloud\
 └ Jobber(Cron)\
 　├ 定時Backup Docker volume\
@@ -13,24 +12,24 @@
 * 備份檔會儲存在主機的 `/backup`
 * 請參考 `*.env_sample` 建立 `*.env`
 * rsync ssh passwd 明碼放在 `/root/ssh.pas`，chown root
-* Jobber會運行`shellScript/backup.sh`，請修改此檔案中(和其它*.sh)的rsync路徑設定
-* 正式發佈前移除 `app.env` 中的 `LETSENCRYPT_TEST=true`\
-此設定為測試SSL證書\
+* Jobber會運行`shellScript/backup.sh && shellScript/upload.sh `，請參考 `upload.sh_sample` 建立 `upload.sh`
+* 正式發佈前移除 `.env` 中的 `LETSENCRYPT_TEST=true`\
+此設定為SSL測試證書\
 正式版有申請次數上限，務必在測試正常、最後上線前再移除
 
-## img圖片縮址和DNS設定
-### Cloudflare設定
-這裡使用Cloudflare做DNS和Cache設定\
-Worker是img縮址的主要邏輯\
-SSL設定是為了讓Let's Encrypt能成功訪問\
-DNS Record有三條，一條A指向SERVER_IP，另倆CNAME指向A Record
-
-Cache設定於cloud和img倆網域上，是為了節省主機流量，Cloudflare能夠抓住近99%\
-請使用nextcloud網域做操作，以免Cache造成回應錯誤\
-分享時使用cloud網域和img網域\
+### img圖片縮址和DNS設定
 img網域的縮址如下:\
 `https://img.domain.com/OOXX` = \
 `https://nextcloud.domain.com/index.php/apps/sharingpath/<NEXTCLOUDUSERNAME>/Public/OOXX`
+
+### Cloudflare設定
+推薦使用Cloudflare做DNS和Cache設定\
+Cloudflare Worker是img縮址的主要邏輯\
+CDN的SSL設定如此是為了讓Let's Encrypt能成功訪問\
+DNS Record有三條，一條A指向SERVER_IP，另倆CNAME指向A Record
+
+Cache只設定於cloud和img倆網域上，nextcloud網域direct用做日常操作，以免Cache造成回應錯誤，
+而分享時使用cloud網域和img網域，可以節省主機流量，Cloudflare能夠抓住近99%
 
 * DNS
 	* A: `nextcloud.domain.com` → SERVER_IP (DNS Only)
