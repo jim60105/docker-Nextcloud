@@ -1,4 +1,8 @@
-# Nextcloud+Docker+定時備份
+# Nextcloud on Docker + 定時rsync備份
+這是從屬於 [jim60105/docker-ReverseProxy](https://github.com/jim60105/docker-ReverseProxy) 的 Nextcloud 方案，必須在上述伺服器運行正常後再做\
+Nextcloud同時做為檔案分享和圖片站。在本機客戶端做自動同步後，就能直接透過網址訪問圖片直鏈。
+
+這是為了在大陸論壇發文時，**不管圖片還是檔案分享都能讓牆內正常瀏覧**而建立的方案
 
 ## 架構
 nginx做Reverse Proxy ─ SSL證書申請、Renew\
