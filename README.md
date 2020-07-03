@@ -5,11 +5,11 @@ Nextcloud同時做為檔案分享和圖片站。在本機客戶端做自動同�
 這是為了在大陸論壇發文時，**不管圖片還是檔案分享都能讓牆內正常瀏覧**而建立的方案
 
 ## 架構
-WWW
-│
-nginx Server (Reverse Proxy) (SSL證書申請、Renew)
-│  ┌ MariaDB資料庫 (網路只對Nextcloud)
-└ Nextcloud
+WWW\
+│\
+nginx Server (Reverse Proxy) (SSL證書申請、Renew)\
+│  ┌ MariaDB資料庫 (網路只對Nextcloud)\
+└ Nextcloud\
  　└ Jobber (Cron) (定時Backup Docker volume，Backup完送至rsync server) 
 
 ## 說明
