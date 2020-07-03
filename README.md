@@ -5,12 +5,12 @@ Nextcloud同時做為檔案分享和圖片站。在本機客戶端做自動同�
 這是為了在大陸論壇發文時，**不管圖片還是檔案分享都能讓牆內正常瀏覧**而建立的方案
 
 ## 架構
-nginx做Reverse Proxy ─ SSL證書申請、Renew\
-│ ┌ MariaDB資料庫\
-├ Nextcloud\
-└ Jobber(Cron)\
-　├ 定時Backup Docker volume\
-　└ Backup完送至rsync server
+WWW
+│
+nginx Server (Reverse Proxy) (SSL證書申請、Renew)
+│  ┌ MariaDB資料庫 (網路只對Nextcloud)
+└ Nextcloud
+ 　└ Jobber (Cron) (定時Backup Docker volume，Backup完送至rsync server) 
 
 ## 說明
 * 備份檔會儲存在主機的 `/backup`
@@ -62,7 +62,7 @@ SSL相關設定如此是為了讓Let's Encrypt能成功訪問，請留意
 		* Edge Cache TTL: a month
 		* Automatic HTTPS Rewrites: On
 		* Disable Performance
-	1. `https://cloud.maki0419.com/*`
+	1. `https://cloud.domain.com/*`
 		* SSL: Full
 		* Rocket Loader: Off
 		* Cache Level: Cache Everything
