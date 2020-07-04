@@ -32,12 +32,8 @@ services:
     environment:
       - REDIS_HOST=redis
       - MYSQL_HOST=db
-      - MYSQL_USER=nextcloud
-      - MYSQL_DATABASE=nextcloud
       # Comma-seperated
       - VIRTUAL_HOST=${LETSENCRYPT_HOST}
-      # Space-seperated
-      - NEXTCLOUD_TRUSTED_DOMAINS=${LETSENCRYPT_HOST}
     depends_on:
       - db
       - redis
