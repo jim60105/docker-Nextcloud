@@ -59,13 +59,14 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /backup:/backup
       - ./shellScript:/script:ro
-      - ~/ssh.pas:/root/ssh.pas:ro
     environment:
       - JOB_NAME1=Backup
       - JOB_COMMAND1=/bin/bash /script/backup.sh && /bin/bash /script/upload.sh
       - JOB_TIME1=0 0 0 * * 3 #Exec per Week at UTC Wed. 0 a.m.
       - JOB_NOTIFY_ERR1=true
       - JOB_NOTIFY_FAIL1=true
+    secrets:
+      - rsyncpass
 
 volumes:
   db:
@@ -77,3 +78,7 @@ networks:
   proxy-tier:
     external: true
     name: proxy-tier
+
+secrets:
+  rsyncpass:
+    file: ~/ssh.pas
