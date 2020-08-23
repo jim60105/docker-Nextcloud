@@ -17,6 +17,7 @@ services:
 
   redis:
     image: redis:alpine
+    command: redis-server --requirepass nextcloud
     labels: *default-label
     restart: always
 
@@ -31,6 +32,7 @@ services:
       - db.env
     environment:
       - REDIS_HOST=redis
+      - REDIS_HOST_PASSWORD=nextcloud
       - MYSQL_HOST=db
       # Comma-seperated
       - VIRTUAL_HOST=${LETSENCRYPT_HOST}
