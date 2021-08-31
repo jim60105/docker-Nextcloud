@@ -6,7 +6,8 @@ x-labels:
 
 services:
   db:
-    image: mariadb
+    # https://github.com/nextcloud/docker/issues/1492
+    image: mariadb:10.5
     labels: *default-label
     command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
     restart: always
